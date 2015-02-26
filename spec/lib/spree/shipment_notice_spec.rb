@@ -3,7 +3,7 @@ require 'spec_helper'
 include Spree
 
 describe Spree::ShipmentNotice do
-  let(:notice) { ShipmentNotice.new({tracking_number: '1Z1231234'},
+  let(:notice) { ShipmentNotice.new({tracking_number: '1Z1231234', carrier: "USPS"},
                                    "<?xml version=\"1.0\" encoding=\"utf-8\"?><ShipNotice><OrderID>87654</OrderID></ShipNotice>") }
 
   context "#apply" do
@@ -12,7 +12,7 @@ describe Spree::ShipmentNotice do
 
       before do
         Shipment.should_receive(:find_by_id).with('87654').and_return(shipment)
-        shipment.should_receive(:update_attribute).with(:tracking, '1Z1231234')
+        shipment.should_receive(:update_attributes!).with(tracking: '1Z1231234', carrier: "USPS")
       end
 
       context "transition succeeds" do
@@ -53,7 +53,7 @@ describe Spree::ShipmentNotice do
       before do
         Spree::Config.shipstation_number = :shipment
         Shipment.should_receive(:find_by_id).with('87654').and_return(shipment)
-        shipment.should_receive(:update_attribute).with(:tracking, '1Z1231234')
+        shipment.should_receive(:update_attributes!).with(tracking: '1Z1231234', carrier: "USPS")
       end
 
       specify { notice.apply.should be_truthy }

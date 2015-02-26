@@ -5,11 +5,13 @@ module Spree
     def initialize(params, body)
       @id   = Hash.from_xml(body)["ShipNotice"]["OrderID"]
       @tracking = params[:tracking_number]
+      @carrier = params[:carrier]
     end
 
     def apply
       locate ? update : not_found
     rescue => e
+      puts e.inspect
       handle_error(e)
     end
 
@@ -20,7 +22,7 @@ module Spree
     end
 
     def update
-      @shipment.update_attribute(:tracking, @tracking)
+      @shipment.update_attributes!(tracking: @tracking, carrier: @carrier)
       if @shipment.can_ship?
         unless @shipment.ship
           handle_error @shipment.inspect
